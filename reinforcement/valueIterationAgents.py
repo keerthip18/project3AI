@@ -198,4 +198,60 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        # compute predecessors of all states
+        predecessors = {}
 
+        for state in self.mdp.getStates():
+            predecessors[state] = set()
+
+        for state in self.mdp.getStates():
+            if self.mdp.isTerminal(state):
+                continue
+
+            for action in self.mdp.getPossibleActions(state):
+                for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action):
+                    if prob > 0:
+                        predecessors[nextState].add(state)
+
+        # initialize empty priority queue
+        pq = util.PriorityQueue()
+
+        # for each non-terminal state, compute diff and push into PQ
+        for state in self.mdp.getStates():  # has to use this order
+            if self.mdp.isTerminal(state):
+                continue
+
+            actions = self.mdp.getPossibleActions(state)
+            maxQ = max(self.computeQValueFromValues(state, a) for a in actions)
+
+            diff = abs(self.values[state] - maxQ)
+
+            pq.push(state, -diff)  # negative because min-heap
+
+        # main loop
+        for i in range(self.iterations):
+
+            if pq.isEmpty():
+                break
+
+            state = pq.pop()
+
+            # update value of s
+            if not self.mdp.isTerminal(state):
+                actions = self.mdp.getPossibleActions(state)
+                maxQ = max(self.computeQValueFromValues(state, a) for a in actions)
+                self.values[state] = maxQ
+
+            # update predecessors
+            for p in predecessors[state]:
+
+                if self.mdp.isTerminal(p):
+                    continue
+
+                actions = self.mdp.getPossibleActions(p)
+                maxQ = max(self.computeQValueFromValues(p, a) for a in actions)
+
+                diff = abs(self.values[p] - maxQ)
+
+                if diff > self.theta:
+                    pq.update(p, -diff)  # update handles duplicate logic
