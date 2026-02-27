@@ -213,11 +213,10 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
                     if prob > 0:
                         predecessors[nextState].add(state)
 
-        # initialize empty priority queue
         pq = util.PriorityQueue()
 
         # for each non-terminal state, compute diff and push into PQ
-        for state in self.mdp.getStates():  # has to use this order
+        for state in self.mdp.getStates():  
             if self.mdp.isTerminal(state):
                 continue
 
@@ -228,7 +227,6 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
 
             pq.push(state, -diff)  # negative because min-heap
 
-        # main loop
         for i in range(self.iterations):
 
             if pq.isEmpty():
