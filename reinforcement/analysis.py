@@ -20,8 +20,8 @@
 # value iteration.
 
 def question2():
-    answerDiscount = 0.9
-    answerNoise = 0.2
+    answerDiscount = 0.9   # unchanged
+    answerNoise = 0.0      # less stochastic, safe to cross
     return answerDiscount, answerNoise
 
 def question3a():

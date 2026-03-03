@@ -177,7 +177,37 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
-        "*** YOUR CODE HERE ***"
+        """
+        Run cyclic (asynchronous) value iteration.
+
+        On iteration i, update only the value of the state at
+        index i % len(states) in the states list, using the
+        current values (in-place updates). If the chosen state
+        is terminal or has no legal actions, its value is left
+        unchanged.
+        """
+        states = self.mdp.getStates()
+        if not states:
+            return
+
+        numStates = len(states)
+
+        for i in range(self.iterations):
+            state = states[i % numStates]
+
+            # Skip terminal states
+            if self.mdp.isTerminal(state):
+                continue
+
+            actions = self.mdp.getPossibleActions(state)
+            if not actions:
+                # No actions available; value remains as is
+                continue
+
+            # Standard Bellman backup using current self.values
+            bestQ = max(self.computeQValueFromValues(state, action)
+                        for action in actions)
+            self.values[state] = bestQ
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
